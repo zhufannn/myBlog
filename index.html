@@ -1,10 +1,30 @@
-﻿<!doctype html>
+<!doctype html>
 <html lang="zh-CN">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="color-scheme" content="light dark" />
     <meta name="description" content="一个使用 Vue3 和 TypeScript 构建的精美个人博客。" />
     <title>拾光札记 | Personal Blog</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <script>
+      ;(() => {
+        try {
+          if (localStorage.getItem('personal-blog-dark') === 'light') {
+            document.documentElement.classList.remove('theme-dark')
+          } else {
+            document.documentElement.classList.add('theme-dark')
+          }
+        } catch (_) {
+          document.documentElement.classList.add('theme-dark')
+        }
+      })()
+    </script>
   </head>
   <body>
     <div id="app"></div>

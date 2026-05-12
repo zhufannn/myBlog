@@ -1,16 +1,16 @@
-﻿import type { BlogPost, ProfileLink } from '../types/blog'
+import type { BlogPost, ProfileLink } from '../types/blog'
 
 export const profile = {
-  name: '林间拾光',
-  role: '独立开发者 / 生活记录者',
+  name: '诸凡',
+  role: '前端开发工程师 · 成都',
   headline: '把技术、审美与日常观察写成可以反复回看的札记。',
-  location: 'Hangzhou, China',
-  avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=400&q=80',
+  location: '成都，中国',
+  avatar: 'https://cdn.myanimelist.net/images/characters/3/512788.jpg',
 }
-
 export const profileLinks: ProfileLink[] = [
   { label: 'GitHub', value: '@time-notes', href: 'https://github.com' },
-  { label: 'Email', value: 'hello@example.com', href: 'mailto:hello@example.com' },
+  { label: 'Email', value: '1040079402@qq.com', href: 'mailto:1040079402@qq.com' },
+  { label: '履历', value: 'PDF 同步详情页', href: '#resume' },
   { label: 'Newsletter', value: '每周日更新', href: '#subscribe' },
 ]
 
@@ -22,7 +22,7 @@ export const posts: BlogPost[] = [
     date: '2026-05-02',
     readTime: '6 min read',
     category: 'Productivity',
-    cover: 'linear-gradient(135deg, #f6d365 0%, #fda085 100%)',
+    cover: 'linear-gradient(145deg, #d8dde4 0%, #bcc4ce 100%)',
     mood: 'Calm',
     tags: ['工作流', '复盘', 'Notion'],
     content: [
@@ -38,7 +38,7 @@ export const posts: BlogPost[] = [
     date: '2026-04-18',
     readTime: '8 min read',
     category: 'Engineering',
-    cover: 'linear-gradient(135deg, #84fab0 0%, #8fd3f4 100%)',
+    cover: 'linear-gradient(145deg, #cad4ce 0%, #aeb8ba 100%)',
     mood: 'Focused',
     tags: ['Vue3', 'TypeScript', '前端工程'],
     content: [
@@ -54,7 +54,7 @@ export const posts: BlogPost[] = [
     date: '2026-03-30',
     readTime: '5 min read',
     category: 'Life',
-    cover: 'linear-gradient(135deg, #a18cd1 0%, #fbc2eb 100%)',
+    cover: 'linear-gradient(145deg, #c9c9d8 0%, #b2b8c9 100%)',
     mood: 'Warm',
     tags: ['城市观察', '摄影', '生活'],
     content: [
@@ -70,7 +70,7 @@ export const posts: BlogPost[] = [
     date: '2026-03-12',
     readTime: '7 min read',
     category: 'Design',
-    cover: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
+    cover: 'linear-gradient(145deg, #d4cdd4 0%, #bfb6bc 100%)',
     mood: 'Bright',
     tags: ['体验设计', '交互', '产品'],
     content: [

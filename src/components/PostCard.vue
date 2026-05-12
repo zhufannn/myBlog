@@ -1,4 +1,4 @@
-﻿<template>
+<template>
   <article class="post-card" @click="$emit('open', post.slug)">
     <div class="post-card__cover" :style="{ background: post.cover }">
       <span>{{ post.mood }}</span>
@@ -9,7 +9,7 @@
         <span>{{ post.readTime }}</span>
       </div>
       <h3>{{ post.title }}</h3>
-      <p>{{ post.excerpt }}</p>
+      <p class="lede-secondary">{{ post.excerpt }}</p>
       <div class="post-card__footer">
         <time :datetime="post.date">{{ formattedDate }}</time>
         <button type="button" aria-label="阅读文章">阅读全文</button>

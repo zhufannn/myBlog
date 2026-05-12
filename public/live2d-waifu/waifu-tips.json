@@ -1,0 +1,30 @@
+{
+  "mouseover": [
+    {
+      "selector": ".brand",
+      "text": [
+        "点击标题可以回到顶上哦~",
+        "拾光札记……听起来很温柔呢"
+      ]
+    },
+    {
+      "selector": ".theme-toggle",
+      "text": ["浅色、深色，你更喜欢哪一种氛围？"]
+    },
+    {
+      "selector": "#login-title",
+      "text": ["登录就能把文章看完啦，慢慢来~"]
+    },
+    {
+      "selector": ".nav-link",
+      "text": ["想看看哪一块内容呢？"]
+    }
+  ],
+  "click": [
+    {
+      "selector": ".post-card",
+      "text": ["要读这篇吗？期待你的感想~"]
+    }
+  ],
+  "seasons": []
+}
