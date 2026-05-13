@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" fill="none" aria-hidden="true">
+  <title>枕月听风</title>
+  <g
+    stroke="#6a7a90"
+    stroke-width="32"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+  >
+    <!-- 微风 -->
+    <path d="M 88 404c152-58 304 24 404-16" />
+    <path d="M 56 518c176-64 356 66 488 2" />
+    <path d="M 100 632c160-50 292 48 404 12" />
+    <!-- 弯月：外弧与内弧闭合，无填充 -->
+    <path d="M 528 214c246 138 246 448 0 586c-118-154-118-432 0-586z" />
+  </g>
+</svg>

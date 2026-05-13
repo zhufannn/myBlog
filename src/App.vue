@@ -32,102 +32,100 @@
 
     <div class="site-shell">
       <header class="nav-bar nav-bar--floating nav-bar--glass" aria-label="站点顶部">
-        <a class="brand text-link-soft" href="#layout-top" @click.prevent="onBrandClick">
-          <span class="brand__mark" aria-hidden="true">
-            <svg class="brand__glyph" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-              <path d="M7 17V7h5c2.07 0 3.76 1.68 3.76 3.76S14.07 14.53 12 14.53H9.3" stroke-linecap="round" stroke-linejoin="round" />
-            </svg>
-          </span>
-          <span class="brand__text text-shimmer">拾光札记</span>
-        </a>
-        <nav v-if="navExpanded" class="nav-bar__links" aria-label="主导航">
-          <a class="nav-link" href="#posts">
+        <div class="nav-bar__head">
+          <a class="brand text-link-soft" href="#layout-top" @click.prevent="onBrandClick">
+            <span class="brand__mark" aria-hidden="true">
+              <svg class="brand__glyph" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                <path d="M7 17V7h5c2.07 0 3.76 1.68 3.76 3.76S14.07 14.53 12 14.53H9.3" stroke-linecap="round" stroke-linejoin="round" />
+              </svg>
+            </span>
+            <span class="brand__text text-shimmer">枕月听风</span>
+          </a>
+          <div class="nav-bar__head-tools">
+            <button
+              v-if="navExpanded && isAuthenticated"
+              class="nav-bar__meta-btn"
+              type="button"
+              @click="logout"
+            >
+              退出
+            </button>
+            <button
+              class="theme-toggle theme-toggle--head"
+              type="button"
+              :aria-label="isDark ? '切换到浅色模式' : '切换到深色模式'"
+              :aria-pressed="isDark"
+              @click="toggleTheme"
+            >
+              <svg v-if="isDark" class="icon-svg" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.65">
+                <circle cx="12" cy="12" r="4.25" />
+                <path
+                  d="M12 2.25v1.85M12 19.9v1.85M21.75 12h-1.85M4.1 12H2.25M18.364 5.636l-1.3 1.3M6.936 17.065l-1.3 1.3M18.364 18.364l-1.3-1.3M6.936 6.935l-1.3-1.3"
+                  stroke-linecap="round"
+                />
+              </svg>
+              <svg v-else class="icon-svg" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.65">
+                <path
+                  d="M20 14.74A8.47 8.47 0 019.47 4a8.5 8.5 0 0010.53 10.74z"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                />
+              </svg>
+            </button>
+          </div>
+        </div>
+        <nav v-if="navExpanded" class="nav-bar__tabs" aria-label="主导航">
+          <a class="nav-link nav-link--tab" href="#posts">
             <svg class="nav-link__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true">
               <path d="M8 7h13M8 12h13M8 17h13M5 7h.01M5 12h.01M5 17h.01" stroke-linecap="round" />
             </svg>
             文章
           </a>
-          <a class="nav-link" href="#about">
+          <a class="nav-link nav-link--tab" href="#about">
             <svg class="nav-link__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true">
               <circle cx="12" cy="8" r="3.25" />
               <path d="M6.5 19.25c0-3.59 3-5.84 5.5-5.84s5.5 2.25 5.5 5.84" stroke-linecap="round" />
             </svg>
             关于
           </a>
-          <a class="nav-link" href="#resume" @click.prevent="openResume">
+          <a
+            v-if="showResumeLinks"
+            class="nav-link nav-link--tab"
+            href="#resume"
+            @click.prevent="openResume"
+          >
             <svg class="nav-link__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true">
               <path d="M8 7v10M16 7v10M8 11h8M8 15h5" stroke-linecap="round" />
               <rect x="5" y="5.5" width="14" height="13" rx="2" ry="2" stroke-linecap="round" />
             </svg>
             履历
           </a>
-          <a class="nav-link" href="#subscribe">
+          <a class="nav-link nav-link--tab" href="#subscribe">
             <svg class="nav-link__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true">
               <rect x="3.5" y="6.5" width="17" height="11" rx="2" ry="2" stroke-linecap="round" />
               <path d="M3.75 9.25L12 14l8.25-4.75" stroke-linecap="round" stroke-linejoin="round" />
             </svg>
             订阅
           </a>
-          <hr class="nav-divider" aria-hidden="true" />
-          <button
-            v-if="isAuthenticated"
-            class="nav-link nav-link--quiet"
-            type="button"
-            @click="logout"
-          >
-            退出
-          </button>
-          <button
-            class="theme-toggle"
-            type="button"
-            :aria-label="isDark ? '切换到浅色模式' : '切换到深色模式'"
-            :aria-pressed="isDark"
-            @click="toggleTheme"
-          >
-            <svg v-if="isDark" class="icon-svg" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.65">
-              <circle cx="12" cy="12" r="4.25" />
+          <a class="nav-link nav-link--tab" href="#feedback" @click.prevent="openFeedback">
+            <svg class="nav-link__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true">
+              <path d="M12 18.5c-1.05 0-2-.35-2.8-.95" stroke-linecap="round" />
+              <path d="M4.5 17.5c.5-2.1 2-3.65 4.2-4.25M8.2 8.3L12 12l4.8-4.8" stroke-linecap="round" stroke-linejoin="round" />
               <path
-                d="M12 2.25v1.85M12 19.9v1.85M21.75 12h-1.85M4.1 12H2.25M18.364 5.636l-1.3 1.3M6.936 17.065l-1.3 1.3M18.364 18.364l-1.3-1.3M6.936 6.935l-1.3-1.3"
-                stroke-linecap="round"
-              />
-            </svg>
-            <svg v-else class="icon-svg" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.65">
-              <path
-                d="M20 14.74A8.47 8.47 0 019.47 4a8.5 8.5 0 0010.53 10.74z"
+                d="M8.25 3.75h7.5a3 3 0 013 3v4.75a3 3 0 01-1.08 2.3L12 17.25l-5.67-3.45a3 3 0 01-1.08-2.3V6.75a3 3 0 013-3z"
                 stroke-linecap="round"
                 stroke-linejoin="round"
               />
             </svg>
-          </button>
+            反馈
+          </a>
         </nav>
-        <div v-else class="nav-bar__links nav-bar__links--minimal" aria-hidden="false">
-          <button
-            class="theme-toggle"
-            type="button"
-            :aria-label="isDark ? '切换到浅色模式' : '切换到深色模式'"
-            :aria-pressed="isDark"
-            @click="toggleTheme"
-          >
-            <svg v-if="isDark" class="icon-svg" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.65">
-              <circle cx="12" cy="12" r="4.25" />
-              <path
-                d="M12 2.25v1.85M12 19.9v1.85M21.75 12h-1.85M4.1 12H2.25M18.364 5.636l-1.3 1.3M6.936 17.065l-1.3 1.3M18.364 18.364l-1.3-1.3M6.936 6.935l-1.3-1.3"
-                stroke-linecap="round"
-              />
-            </svg>
-            <svg v-else class="icon-svg" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.65">
-              <path
-                d="M20 14.74A8.47 8.47 0 019.47 4a8.5 8.5 0 0010.53 10.74z"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-              />
-            </svg>
-          </button>
-        </div>
       </header>
 
       <main id="top" class="main-flow">
         <PersonalResumePage v-if="showResume" @back="exitResume" />
+
+        <FeedbackPage v-else-if="showFeedback && authRole" :role="authRole" @back="exitFeedback" />
 
         <LoginPage v-else-if="!isAuthenticated" @success="onLoginSuccess" />
 
@@ -136,6 +134,9 @@
             <div class="hero-section__content surface-card surface-card--lg">
               <p class="eyebrow">Personal Blog · Vue3 + TypeScript</p>
               <h1 class="text-shimmer heading-display">{{ profile.headline }}</h1>
+              <p class="site-slogan" lang="zh-CN">
+                <span class="site-slogan__inner">凡心自持，敏思向阳，熙然安生</span>
+              </p>
               <hr class="section-rule" aria-hidden="true" />
               <p class="hero-section__intro lede-secondary">
                 这里暂存关于前端工程、体验设计、效率系统和生活观察的文章。数据保存在项目内，适合后续接入 CMS 或接口。
@@ -143,19 +144,28 @@
               <div class="hero-actions">
                 <a class="btn btn-primary" href="#posts">开始阅读</a>
                 <a class="btn btn-ghost" href="#about">了解作者</a>
-                <a class="btn btn-ghost" href="#resume" @click.prevent="openResume">个人简历</a>
+                <a
+                  v-if="showResumeLinks"
+                  class="btn btn-ghost"
+                  href="#resume"
+                  @click.prevent="openResume"
+                >
+                  个人简历
+                </a>
               </div>
             </div>
             <aside class="profile-card surface-card surface-card--lg" aria-label="作者资料">
               <div class="profile-card__accent" aria-hidden="true" />
-              <img class="profile-card__avatar" :src="profile.avatar" :alt="profile.name" loading="lazy" />
-              <div class="profile-card__pill">
-                <span class="status-dot" aria-hidden="true"></span>
-                <span>Open to ideas</span>
+              <div class="profile-card__head">
+                <img class="profile-card__avatar" :src="profile.avatar" :alt="profile.name" loading="lazy" />
+                <div class="profile-card__pill">
+                  <span class="status-dot" aria-hidden="true"></span>
+                  <span>Open to ideas</span>
+                </div>
               </div>
-              <h2 class="text-shimmer">{{ profile.name }}</h2>
-              <p class="lede-secondary">{{ profile.role }}</p>
-              <small class="meta-quiet">{{ profile.location }}</small>
+              <h2 class="text-shimmer profile-card__name">{{ profile.name }}</h2>
+              <p class="lede-secondary profile-card__role">{{ profile.role }}</p>
+              <small class="meta-quiet profile-card__loc">{{ profile.location }}</small>
             </aside>
           </section>
 
@@ -253,7 +263,7 @@
             </p>
           </div>
           <div class="link-list">
-            <a v-for="link in profileLinks" :key="link.label" class="surface-card link-tile hover-lift text-link-soft" :href="link.href" target="_blank" rel="noreferrer">
+            <a v-for="link in visibleProfileLinks" :key="link.label" class="surface-card link-tile hover-lift text-link-soft" :href="link.href" target="_blank" rel="noreferrer">
               <span class="meta-quiet">{{ link.label }}</span>
               <strong class="tile-value">{{ link.value }}</strong>
               <svg class="link-tile__chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
@@ -306,11 +316,13 @@ import {
 } from 'vue'
 import ArticleDetail from './components/ArticleDetail.vue'
 import Live2dWaifu from './components/Live2dWaifu.vue'
+import FeedbackPage from './components/FeedbackPage.vue'
 import LoginPage from './components/LoginPage.vue'
 import ParticleField from './components/ParticleField.vue'
 import PersonalResumePage from './components/PersonalResumePage.vue'
 import PostCard from './components/PostCard.vue'
-import { persistAuth, readStoredAuth } from './composables/useBlogAuth'
+import type { AuthRole } from './composables/useBlogAuth'
+import { clearAuth, persistAuth, readAuthRole, readStoredAuth } from './composables/useBlogAuth'
 import { useFxEnvironment } from './composables/useFxEnvironment'
 
 import { useParallaxLayer } from './composables/useScrollParallax'
@@ -322,8 +334,9 @@ const THEME_STORAGE = 'personal-blog-dark'
 
 const environment = useFxEnvironment()
 
-/** URL hash：#resume 个人履历页；#post-{slug} 文章抽屉（与既有逻辑共用） */
+/** URL hash：#resume 履历 · #feedback 反馈 · #post-{slug} 文章 */
 const showResume = ref(false)
+const showFeedback = ref(false)
 
 function readInitialDark(): boolean {
   try {
@@ -350,23 +363,56 @@ const activeSlug = ref<string | null>(null)
 
 function syncRouteFromHash(): void {
   const raw = window.location.hash.replace(/^#/, '')
+  const role = readAuthRole()
+
   if (raw.startsWith('post-')) {
     showResume.value = false
+    showFeedback.value = false
     const slug = raw.slice(5)
     activeSlug.value = posts.some((p) => p.slug === slug) ? slug : null
     return
   }
-  showResume.value = raw === 'resume'
-  if (showResume.value) {
-    activeSlug.value = null
-    void nextTick(() => {
-      window.scrollTo({ top: 0, behavior: 'instant' })
-    })
+
+  activeSlug.value = null
+
+  if (raw === 'resume') {
+    showFeedback.value = false
+    if (role === 'member') {
+      showResume.value = true
+      void nextTick(() => {
+        window.scrollTo({ top: 0, behavior: 'auto' })
+      })
+    } else {
+      showResume.value = false
+      window.history.replaceState(null, '', `${window.location.pathname}${window.location.search}`)
+    }
+    return
   }
+
+  if (raw === 'feedback') {
+    showResume.value = false
+    if (readStoredAuth()) {
+      showFeedback.value = true
+      void nextTick(() => {
+        window.scrollTo({ top: 0, behavior: 'auto' })
+      })
+    } else {
+      showFeedback.value = false
+      window.history.replaceState(null, '', `${window.location.pathname}${window.location.search}`)
+    }
+    return
+  }
+
+  showResume.value = false
+  showFeedback.value = false
 }
 
 function openResume(): void {
   window.location.hash = '#resume'
+}
+
+function openFeedback(): void {
+  window.location.hash = '#feedback'
 }
 
 function exitResume(): void {
@@ -375,21 +421,38 @@ function exitResume(): void {
   scrollToTop()
 }
 
-function onLoginSuccess(): void {
-  persistAuth(true)
+function exitFeedback(): void {
+  window.history.replaceState(null, '', `${window.location.pathname}${window.location.search}`)
+  showFeedback.value = false
+  scrollToTop()
+}
+
+function onLoginSuccess(role: AuthRole): void {
+  persistAuth(role)
+  authRole.value = role
   isAuthenticated.value = true
-  void nextTick(() => handleScroll())
+  void nextTick(() => {
+    syncRouteFromHash()
+    handleScroll()
+  })
 }
 
 function logout(): void {
-  persistAuth(false)
+  clearAuth()
+  authRole.value = null
   isAuthenticated.value = false
+  showResume.value = false
+  showFeedback.value = false
   activeSlug.value = null
   window.history.replaceState(null, '', `${window.location.pathname}${window.location.search}`)
   scrollToTop()
 }
 
 function onBrandClick(): void {
+  if (showFeedback.value) {
+    exitFeedback()
+    return
+  }
   if (showResume.value || isAuthenticated.value) {
     goTop()
     return
@@ -403,10 +466,17 @@ const pageReady = ref(false)
 const showBackTop = ref(false)
 const isDark = ref(readInitialDark())
 
+const authRole = ref<AuthRole | null>(readAuthRole())
 const isAuthenticated = ref(readStoredAuth())
 
 /** 登录页仅保留主题切换；履历或已登录显示完整导航 */
 const navExpanded = computed(() => showResume.value || isAuthenticated.value)
+
+const showResumeLinks = computed(() => authRole.value === 'member')
+
+const visibleProfileLinks = computed(() =>
+  authRole.value === 'guest' ? profileLinks.filter((l) => l.href !== '#resume') : profileLinks,
+)
 
 /** 浅色模式切换节流计时器——用于卸载 theme-crossfade 类 */
 let themeCrossfadeTimer = 0
@@ -472,6 +542,10 @@ function goTop(): void {
     exitResume()
     return
   }
+  if (showFeedback.value) {
+    exitFeedback()
+    return
+  }
   scrollToTop()
   closeArticle()
 }
@@ -480,9 +554,9 @@ function goTop(): void {
 function handleScroll(): void {
   const y = window.scrollY
 
-  showBackTop.value = isAuthenticated.value && !showResume.value && y > 420
+  showBackTop.value = isAuthenticated.value && !showResume.value && !showFeedback.value && y > 420
 
-  if (!isAuthenticated.value || showResume.value) {
+  if (!isAuthenticated.value || showResume.value || showFeedback.value) {
     scrollY.value = 0
     return
   }

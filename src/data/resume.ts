@@ -8,7 +8,7 @@ export const resumeBasics = {
   age: 30,
   /** 以下为 PDF 所载联系方式；若上线公网可自行脱敏 */
   wechat: '18780123103',
-  email: '1040079402@qq.com',
+  email: '1040076402@qq.com',
 } as const
 
 export const resumeJobIntent = {

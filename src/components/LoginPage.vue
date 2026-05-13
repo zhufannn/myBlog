@@ -4,8 +4,6 @@
 <template>
   <section class="login-shell" aria-labelledby="login-title">
     <div class="login-shell__noise" aria-hidden="true" />
-    <div class="login-shell__glow login-shell__glow--a" aria-hidden="true" />
-    <div class="login-shell__glow login-shell__glow--b" aria-hidden="true" />
 
     <section class="login-page surface-card surface-card--block">
       <div class="login-page__accent" aria-hidden="true" />
@@ -22,8 +20,7 @@
           </svg>
         </div>
         <p class="eyebrow login-page__eyebrow">Private</p>
-        <h1 id="login-title" class="text-shimmer login-page__title">登录后继续浏览</h1>
-        <p class="lede-secondary login-page__lede">正文内容仅对已登录访客开放。</p>
+        <h1 id="login-title" class="text-shimmer login-page__title">登录</h1>
         <hr class="section-rule login-page__rule" aria-hidden="true" />
       </header>
 
@@ -149,6 +146,11 @@
             <path d="M5 12h12M13 6l6 6-6 6" stroke="currentColor" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round" />
           </svg>
         </button>
+
+        <p class="login-alt__label meta-quiet" role="presentation">或</p>
+        <button class="btn btn-ghost login-guest" type="button" @click="enterAsGuest">
+          游客进入（无需账号）
+        </button>
       </form>
     </section>
   </section>
@@ -159,7 +161,7 @@ import { nextTick, ref } from 'vue'
 import { validateCredentials } from '../composables/useBlogAuth'
 
 const emit = defineEmits<{
-  success: []
+  success: [role: 'member' | 'guest']
 }>()
 
 const username = ref('')
@@ -181,7 +183,12 @@ function submit(): void {
     password.value = ''
     return
   }
-  emit('success')
+  emit('success', 'member')
+}
+
+function enterAsGuest(): void {
+  errorTip.value = ''
+  emit('success', 'guest')
 }
 </script>
 
@@ -190,58 +197,33 @@ function submit(): void {
   position: relative;
   display: grid;
   place-items: center;
-  padding: clamp(2rem, 8vw, 4rem) clamp(1rem, 4vw, 2rem);
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+  overflow: hidden;
+  padding-top: clamp(2rem, 8vw, 4rem);
+  padding-bottom: clamp(2rem, 8vw, 4rem);
+  padding-left: max(clamp(1rem, 4vw, 2rem), env(safe-area-inset-left, 0px));
+  padding-right: max(clamp(1rem, 4vw, 2rem), env(safe-area-inset-right, 0px));
   min-height: min(72vh, 640px);
 }
 
 .login-shell__noise {
   position: absolute;
-  inset: -12%;
-  opacity: 0.035;
+  inset: -8%;
+  opacity: 0.028;
   pointer-events: none;
   background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
   mix-blend-mode: overlay;
 }
 
-.login-shell__glow {
-  position: absolute;
-  border-radius: 50%;
-  filter: blur(56px);
-  pointer-events: none;
-  opacity: 0.55;
-}
-
-.login-shell__glow--a {
-  width: min(420px, 72vw);
-  height: min(380px, 58vw);
-  top: -8%;
-  left: -6%;
-  background: radial-gradient(
-    circle at 40% 40%,
-    color-mix(in srgb, var(--color-accent-strong) 42%, transparent),
-    transparent 68%
-  );
-}
-
-.login-shell__glow--b {
-  width: min(360px, 60vw);
-  height: min(320px, 50vw);
-  bottom: -12%;
-  right: -8%;
-  background: radial-gradient(
-    circle at 55% 55%,
-    color-mix(in srgb, var(--color-accent) 38%, transparent),
-    transparent 70%
-  );
-}
-
-:global(html.theme-dark) .login-shell__glow {
-  opacity: 0.42;
-}
-
 .login-page {
   position: relative;
   width: min(420px, 100%);
+  max-width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
   overflow: hidden;
   isolation: isolate;
   border-radius: calc(var(--radius-xl) + 4px);
@@ -313,6 +295,7 @@ function submit(): void {
   font-weight: 650;
   letter-spacing: -0.038em;
   line-height: 1.12;
+  overflow-wrap: anywhere;
 }
 
 .login-page__lede {
@@ -348,9 +331,10 @@ function submit(): void {
 
 .login-field__label-row {
   display: flex;
+  flex-wrap: wrap;
   align-items: baseline;
   justify-content: space-between;
-  gap: 0.75rem;
+  gap: 0.35rem 0.75rem;
 }
 
 .login-field__label-row .login-field__label {
@@ -374,6 +358,8 @@ function submit(): void {
   position: relative;
   display: flex;
   align-items: center;
+  min-width: 0;
+  max-width: 100%;
   border-radius: var(--radius-md);
   border: 1px solid var(--color-border);
   background: var(--color-surface-solid);
@@ -462,7 +448,9 @@ function submit(): void {
 }
 
 .login-field__input {
+  flex: 1 1 0;
   width: 100%;
+  min-width: 0;
   min-height: 50px;
   padding: 0 14px 0 46px;
   border: none;
@@ -483,6 +471,8 @@ function submit(): void {
   align-items: flex-start;
   gap: 0.55rem;
   margin: -0.15rem 0 0;
+  min-width: 0;
+  overflow-wrap: anywhere;
   padding: 0.65rem 0.85rem;
   border-radius: var(--radius-sm);
   font-size: 0.8625rem;
@@ -557,6 +547,27 @@ function submit(): void {
   transform: translateX(4px);
 }
 
+.login-alt__label {
+  margin: 0.25rem 0 0;
+  text-align: center;
+  letter-spacing: 0.12em;
+  font-size: 0.8125rem;
+}
+
+.login-guest {
+  width: 100%;
+  min-height: 48px;
+}
+
+.login-guest__hint {
+  margin: 0.55rem 0 0;
+  text-align: center;
+  font-size: 0.8125rem;
+  line-height: 1.55;
+  max-width: 34rem;
+  margin-inline: auto;
+}
+
 @keyframes login-enter {
   from {
     opacity: 0;
@@ -566,6 +577,12 @@ function submit(): void {
   to {
     opacity: 1;
     transform: none;
+  }
+}
+
+@media (max-width: 480px) {
+  .login-shell__noise {
+    inset: -4%;
   }
 }
 

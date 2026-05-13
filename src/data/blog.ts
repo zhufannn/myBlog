@@ -8,8 +8,8 @@ export const profile = {
   avatar: 'https://cdn.myanimelist.net/images/characters/3/512788.jpg',
 }
 export const profileLinks: ProfileLink[] = [
-  { label: 'GitHub', value: '@time-notes', href: 'https://github.com' },
-  { label: 'Email', value: '1040079402@qq.com', href: 'mailto:1040079402@qq.com' },
+  { label: 'GitHub', value: '@zhufannn', href: 'https://github.com' },
+  { label: 'Email', value: '1040076402@qq.com', href: 'mailto:1040076402@qq.com' },
   { label: '履历', value: 'PDF 同步详情页', href: '#resume' },
   { label: 'Newsletter', value: '每周日更新', href: '#subscribe' },
 ]
