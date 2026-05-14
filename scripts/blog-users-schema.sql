@@ -1,4 +1,4 @@
--- 用户表：与 server/authCore.ts 自动建表/种子一致；亦可手动在 SQL 编辑器执行。
+-- 用户表：与 api/lib/authCore.ts 自动建表/种子一致；亦可手动在 SQL 编辑器执行。
 CREATE TABLE IF NOT EXISTS blog_users (
   id TEXT PRIMARY KEY,
   username TEXT NOT NULL UNIQUE,

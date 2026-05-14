@@ -2,9 +2,9 @@
  * POST /api/auth/login — 校验 blog_users，返回 memberId / displayName
  */
 import type { VercelRequest, VercelResponse } from '@vercel/node'
-import { runAuthLogin } from '../../server/authCore'
-import { getPostgresUrl } from '../../server/feedbackCore'
-import { readJsonBody } from '../../server/readJsonBody'
+import { runAuthLogin } from '../lib/authCore'
+import { getPostgresUrl } from '../lib/feedbackCore'
+import { readJsonBody } from '../lib/readJsonBody'
 
 export default async function handler(req: VercelRequest, res: VercelResponse): Promise<void> {
   try {

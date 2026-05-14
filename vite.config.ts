@@ -3,8 +3,8 @@ import type { ServerResponse } from 'node:http'
 import type { ViteDevServer } from 'vite'
 import { defineConfig, loadEnv } from 'vite'
 import vue from '@vitejs/plugin-vue'
-import { runAuthLogin, runAuthPasswordChange } from './server/authCore'
-import { runFeedbackApi } from './server/feedbackCore'
+import { runAuthLogin, runAuthPasswordChange } from './api/lib/authCore'
+import { runFeedbackApi } from './api/lib/feedbackCore'
 
 /** 与 boot 时一致：文件 env + 已在进程内的变量（部分终端只注入 process.env）。 */
 function resolvePostgresUrlFromEnv(

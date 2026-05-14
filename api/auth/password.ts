@@ -2,9 +2,9 @@
  * POST /api/auth/password — 校验原密码后更新 blog_users.password_hash
  */
 import type { VercelRequest, VercelResponse } from '@vercel/node'
-import { runAuthPasswordChange } from '../../server/authCore'
-import { getPostgresUrl } from '../../server/feedbackCore'
-import { readJsonBody } from '../../server/readJsonBody'
+import { runAuthPasswordChange } from '../lib/authCore'
+import { getPostgresUrl } from '../lib/feedbackCore'
+import { readJsonBody } from '../lib/readJsonBody'
 
 export default async function handler(req: VercelRequest, res: VercelResponse): Promise<void> {
   try {
