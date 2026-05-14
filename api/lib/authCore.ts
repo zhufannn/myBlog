@@ -3,7 +3,7 @@
  */
 import { compareSync, hashSync } from 'bcryptjs'
 import { neon } from '@neondatabase/serverless'
-import { ensureGlobalFetch } from './feedbackCore'
+import { ensureGlobalFetch } from './feedbackCore.js'
 
 export type SqlAuth = ReturnType<typeof neon>
 

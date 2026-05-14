@@ -2,8 +2,8 @@
  * Vercel Serverless：反馈读写（逻辑在 api/lib/feedbackCore.ts）。
  */
 import type { VercelRequest, VercelResponse } from '@vercel/node'
-import { getPostgresUrl, runFeedbackApi } from './lib/feedbackCore'
-import { readJsonBody } from './lib/readJsonBody'
+import { getPostgresUrl, runFeedbackApi } from './lib/feedbackCore.js'
+import { readJsonBody } from './lib/readJsonBody.js'
 
 export default async function handler(req: VercelRequest, res: VercelResponse): Promise<void> {
   try {
