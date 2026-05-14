@@ -50,7 +50,11 @@ interface Particle {
 
 const particles: Particle[] = []
 
-const particleTarget = computed(() => Math.max(28, Math.min(props.count, 160)))
+const particleTarget = computed(() => {
+  const raw = Number(props.count)
+  const n = Number.isFinite(raw) ? raw : 88
+  return Math.max(28, Math.min(n, 160))
+})
 
 function smootherstep01(t: number): number {
   const x = Math.min(1, Math.max(0, t))
@@ -139,7 +143,7 @@ function tick(now: number): void {
 
   const t = now * 0.001
 
-  const gentle = props.gentle
+  const gentle = !!props.gentle
 
   /** 越深越「飘」慢一点；浅色主题提高对比（否则磨砂卡片后几乎不可见） */
   let flow = props.dark ? 0.032 : 0.03

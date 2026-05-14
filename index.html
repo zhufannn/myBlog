@@ -9,7 +9,7 @@
       content="枕月听风——凡心自持，敏思向阳，熙然安生。Vue3 与 TypeScript 构建的个人博客。"
     />
     <title>枕月听风</title>
-    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="icon" href="/pika.svg" type="image/svg+xml" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
@@ -18,14 +18,15 @@
     />
     <script>
       ;(() => {
+        console.log('personal-blog-dark', localStorage.getItem('personal-blog-dark'))
         try {
-          if (localStorage.getItem('personal-blog-dark') === 'light') {
-            document.documentElement.classList.remove('theme-dark')
-          } else {
+          if (localStorage.getItem('personal-blog-dark') === 'dark') {
             document.documentElement.classList.add('theme-dark')
+          } else {
+            document.documentElement.classList.remove('theme-dark')
           }
         } catch (_) {
-          document.documentElement.classList.add('theme-dark')
+          document.documentElement.classList.remove('theme-dark')
         }
       })()
     </script>

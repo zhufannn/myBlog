@@ -3,11 +3,11 @@
   <div class="app-shell">
     <!-- 画布层：非「减少动态效果」时在后台运行，独立于内容栈避免挡住点击 -->
     <ParticleField
-    v-if="environment.showParticles"
+    v-if="showParticles"
     :enabled="true"
-    :gentle="environment.particleGentle"
+    :gentle="particleGentle"
     :dark="isDark"
-    :count="environment.particleBudget"
+    :count="particleBudget"
   />
 
   <Live2dWaifu />
@@ -332,7 +332,12 @@ import { categories, posts, profile, profileLinks } from './data/blog'
 
 const THEME_STORAGE = 'personal-blog-dark'
 
-const environment = useFxEnvironment()
+const {
+  showParticles,
+  particleGentle,
+  particleBudget,
+  showScrollParallax,
+} = useFxEnvironment()
 
 /** URL hash：#resume 履历 · #feedback 反馈 · #post-{slug} 文章 */
 const showResume = ref(false)
@@ -341,11 +346,11 @@ const showFeedback = ref(false)
 function readInitialDark(): boolean {
   try {
     /** 只有当用户手动切到浅色时记录为 light；缺失键则默认沉浸式科技深色 */
-    if (localStorage.getItem(THEME_STORAGE) === 'light') return false
+    if (localStorage.getItem(THEME_STORAGE) === 'dark') return true
   } catch {
     /* ignore */
   }
-  return true
+  return false
 }
 
 const scrollY = ref(0)
@@ -561,7 +566,7 @@ function handleScroll(): void {
     return
   }
 
-  if (environment.showScrollParallax.value) {
+  if (showScrollParallax.value) {
     scrollY.value = y
   }
 }
