@@ -3,16 +3,23 @@
  */
 import type { VercelRequest, VercelResponse } from '@vercel/node'
 import { getPostgresUrl, runFeedbackApi } from '../server/feedbackCore'
+import { readJsonBody } from '../server/readJsonBody'
 
 export default async function handler(req: VercelRequest, res: VercelResponse): Promise<void> {
-  const r = await runFeedbackApi({
-    method: req.method,
-    body: req.body,
-    postgresUrl: getPostgresUrl(),
-  })
-  res.status(r.status).json(r.json)
+  try {
+    const r = await runFeedbackApi({
+      method: req.method,
+      body: readJsonBody(req.body),
+      postgresUrl: getPostgresUrl(),
+    })
+    res.status(r.status).json(r.json)
+  } catch (e) {
+    console.error('[api/feedback]', e)
+    res.status(500).json({ error: '接口执行失败' })
+  }
 }
 
 export const config = {
   runtime: 'nodejs',
+  maxDuration: 30,
 }

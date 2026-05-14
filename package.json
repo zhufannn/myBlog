@@ -20,6 +20,7 @@
     "@tiptap/extension-placeholder": "^3.23.4",
     "@tiptap/starter-kit": "^3.23.4",
     "@tiptap/vue-3": "^3.23.4",
+    "@vercel/node": "^3.2.0",
     "bcryptjs": "^3.0.3",
     "dompurify": "^3.4.3",
     "pixi-live2d-display": "^0.4.0",
@@ -32,7 +33,6 @@
     "@types/bcryptjs": "^2.4.6",
     "@types/dompurify": "^3.0.5",
     "@types/node": "^20.19.41",
-    "@vercel/node": "^3.2.0",
     "@vitejs/plugin-vue": "^4.6.2",
     "typescript": "^5.2.2",
     "vite": "^4.5.5"

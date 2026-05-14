@@ -1,8 +1,8 @@
 /**
  * 正式用户认证：blog_users 表 + bcrypt 密码哈希（供 Vite 中间件与 Vercel Function 共用）。
  */
+import { compareSync, hashSync } from 'bcryptjs'
 import { neon } from '@neondatabase/serverless'
-import bcrypt from 'bcryptjs'
 import { ensureGlobalFetch } from './feedbackCore'
 
 export type SqlAuth = ReturnType<typeof neon>
@@ -35,7 +35,7 @@ async function seedUsersIfEmpty(sql: SqlAuth): Promise<void> {
   const c = Number((rows[0] as { c?: number })?.c ?? 0)
   if (c > 0) return
   for (const u of SEED_USERS) {
-    const hash = bcrypt.hashSync(u.plainPassword, BCRYPT_ROUNDS)
+    const hash = hashSync(u.plainPassword, BCRYPT_ROUNDS)
     await sql`
       INSERT INTO blog_users (id, username, password_hash, display_name)
       VALUES (${u.id}, ${u.username}, ${hash}, ${u.displayName})
@@ -102,7 +102,7 @@ export async function runAuthLogin(input: {
     if (!row) {
       return { status: 401, json: { error: '账号或密码不正确' } }
     }
-    const ok = bcrypt.compareSync(parsed.password, row.password_hash)
+    const ok = compareSync(parsed.password, row.password_hash)
     if (!ok) {
       return { status: 401, json: { error: '账号或密码不正确' } }
     }
@@ -153,11 +153,11 @@ export async function runAuthPasswordChange(input: {
     if (!row) {
       return { status: 404, json: { error: '用户不存在' } }
     }
-    const ok = bcrypt.compareSync(parsed.oldPassword, row.password_hash)
+    const ok = compareSync(parsed.oldPassword, row.password_hash)
     if (!ok) {
       return { status: 401, json: { error: '原密码不正确' } }
     }
-    const newHash = bcrypt.hashSync(parsed.newPassword, BCRYPT_ROUNDS)
+    const newHash = hashSync(parsed.newPassword, BCRYPT_ROUNDS)
     await sql`UPDATE blog_users SET password_hash = ${newHash} WHERE id = ${parsed.memberId}`
     return { status: 200, json: { ok: true } }
   } catch (e) {
