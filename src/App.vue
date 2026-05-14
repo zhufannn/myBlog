@@ -43,6 +43,16 @@
           </a>
           <div class="nav-bar__head-tools">
             <button
+              v-if="navExpanded && isAuthenticated && authRole === 'member'"
+              class="nav-bar__meta-btn nav-bar__meta-btn--secondary"
+              type="button"
+              aria-label="修改密码"
+              @click="pwdDialogOpen = true"
+            >
+              <span class="nav-bar__pwd-full">修改密码</span>
+              <span class="nav-bar__pwd-short" aria-hidden="true">密码</span>
+            </button>
+            <button
               v-if="navExpanded && isAuthenticated"
               class="nav-bar__meta-btn"
               type="button"
@@ -124,6 +134,8 @@
 
       <main id="top" class="main-flow">
         <PersonalResumePage v-if="showResume" @back="exitResume" />
+
+        <FeedbackListFullPage v-else-if="showFeedbackAll && authRole" @back="exitFeedbackAll" />
 
         <FeedbackPage v-else-if="showFeedback && authRole" :role="authRole" @back="exitFeedback" />
 
@@ -296,6 +308,14 @@
         </template>
       </main>
     </div>
+
+    <ChangePasswordDialog
+      v-if="sessionMemberId"
+      :open="pwdDialogOpen"
+      :member-id="sessionMemberId"
+      @close="pwdDialogOpen = false"
+      @success="onPasswordChanged"
+    />
   </div>
   </div>
 </template>
@@ -315,14 +335,22 @@ import {
   watch,
 } from 'vue'
 import ArticleDetail from './components/ArticleDetail.vue'
+import ChangePasswordDialog from './components/ChangePasswordDialog.vue'
 import Live2dWaifu from './components/Live2dWaifu.vue'
+import FeedbackListFullPage from './components/FeedbackListFullPage.vue'
 import FeedbackPage from './components/FeedbackPage.vue'
 import LoginPage from './components/LoginPage.vue'
 import ParticleField from './components/ParticleField.vue'
 import PersonalResumePage from './components/PersonalResumePage.vue'
 import PostCard from './components/PostCard.vue'
-import type { AuthRole } from './composables/useBlogAuth'
-import { clearAuth, persistAuth, readAuthRole, readStoredAuth } from './composables/useBlogAuth'
+import type { AuthRole, MemberId } from './composables/useBlogAuth'
+import {
+  clearAuth,
+  persistAuth,
+  readAuthRole,
+  readMemberId,
+  readStoredAuth,
+} from './composables/useBlogAuth'
 import { useFxEnvironment } from './composables/useFxEnvironment'
 
 import { useParallaxLayer } from './composables/useScrollParallax'
@@ -342,6 +370,14 @@ const {
 /** URL hash：#resume 履历 · #feedback 反馈 · #post-{slug} 文章 */
 const showResume = ref(false)
 const showFeedback = ref(false)
+const showFeedbackAll = ref(false)
+
+const pwdDialogOpen = ref(false)
+const sessionMemberId = ref<MemberId | null>(readMemberId())
+
+function syncSessionMemberId(): void {
+  sessionMemberId.value = readMemberId()
+}
 
 function readInitialDark(): boolean {
   try {
@@ -373,6 +409,7 @@ function syncRouteFromHash(): void {
   if (raw.startsWith('post-')) {
     showResume.value = false
     showFeedback.value = false
+    showFeedbackAll.value = false
     const slug = raw.slice(5)
     activeSlug.value = posts.some((p) => p.slug === slug) ? slug : null
     return
@@ -382,6 +419,7 @@ function syncRouteFromHash(): void {
 
   if (raw === 'resume') {
     showFeedback.value = false
+    showFeedbackAll.value = false
     if (role === 'member') {
       showResume.value = true
       void nextTick(() => {
@@ -396,6 +434,7 @@ function syncRouteFromHash(): void {
 
   if (raw === 'feedback') {
     showResume.value = false
+    showFeedbackAll.value = false
     if (readStoredAuth()) {
       showFeedback.value = true
       void nextTick(() => {
@@ -408,8 +447,24 @@ function syncRouteFromHash(): void {
     return
   }
 
+  if (raw === 'feedback-all') {
+    showResume.value = false
+    showFeedback.value = false
+    if (readStoredAuth()) {
+      showFeedbackAll.value = true
+      void nextTick(() => {
+        window.scrollTo({ top: 0, behavior: 'auto' })
+      })
+    } else {
+      showFeedbackAll.value = false
+      window.history.replaceState(null, '', `${window.location.pathname}${window.location.search}`)
+    }
+    return
+  }
+
   showResume.value = false
   showFeedback.value = false
+  showFeedbackAll.value = false
 }
 
 function openResume(): void {
@@ -432,14 +487,23 @@ function exitFeedback(): void {
   scrollToTop()
 }
 
-function onLoginSuccess(role: AuthRole): void {
-  persistAuth(role)
+function exitFeedbackAll(): void {
+  showFeedbackAll.value = false
+  window.location.hash = '#feedback'
+}
+function onLoginSuccess(role: AuthRole, memberId?: MemberId, displayName?: string): void {
+  persistAuth(role, memberId, displayName)
   authRole.value = role
   isAuthenticated.value = true
+  syncSessionMemberId()
   void nextTick(() => {
     syncRouteFromHash()
     handleScroll()
   })
+}
+
+function onPasswordChanged(): void {
+  pwdDialogOpen.value = false
 }
 
 function logout(): void {
@@ -448,12 +512,19 @@ function logout(): void {
   isAuthenticated.value = false
   showResume.value = false
   showFeedback.value = false
+  showFeedbackAll.value = false
+  pwdDialogOpen.value = false
+  syncSessionMemberId()
   activeSlug.value = null
   window.history.replaceState(null, '', `${window.location.pathname}${window.location.search}`)
   scrollToTop()
 }
 
 function onBrandClick(): void {
+  if (showFeedbackAll.value) {
+    exitFeedbackAll()
+    return
+  }
   if (showFeedback.value) {
     exitFeedback()
     return
@@ -547,6 +618,10 @@ function goTop(): void {
     exitResume()
     return
   }
+  if (showFeedbackAll.value) {
+    exitFeedbackAll()
+    return
+  }
   if (showFeedback.value) {
     exitFeedback()
     return
@@ -559,9 +634,10 @@ function goTop(): void {
 function handleScroll(): void {
   const y = window.scrollY
 
-  showBackTop.value = isAuthenticated.value && !showResume.value && !showFeedback.value && y > 420
+  showBackTop.value =
+    isAuthenticated.value && !showResume.value && !showFeedback.value && !showFeedbackAll.value && y > 420
 
-  if (!isAuthenticated.value || showResume.value || showFeedback.value) {
+  if (!isAuthenticated.value || showResume.value || showFeedback.value || showFeedbackAll.value) {
     scrollY.value = 0
     return
   }
@@ -695,6 +771,7 @@ function runReveal(): void {
 
 
 onMounted(() => {
+  syncSessionMemberId()
   syncRouteFromHash()
   window.addEventListener('hashchange', syncRouteFromHash)
   window.addEventListener('scroll', handleScroll, { passive: true })

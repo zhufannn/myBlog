@@ -326,6 +326,35 @@ h3 {
   transform: translateY(1px);
 }
 
+.nav-bar__meta-btn--secondary {
+  font-weight: 550;
+}
+
+.nav-bar__pwd-short {
+  display: none;
+}
+
+@media (max-width: 520px) {
+  .nav-bar__pwd-full {
+    display: none;
+  }
+
+  .nav-bar__pwd-short {
+    display: inline;
+  }
+
+  .nav-bar__head-tools {
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    max-width: min(220px, 52vw);
+  }
+
+  .nav-bar__meta-btn {
+    padding: 0.26rem 0.38rem;
+    font-size: 0.84rem;
+  }
+}
+
 .theme-toggle--head {
   width: 34px;
   height: 34px;
@@ -1427,18 +1456,24 @@ html.theme-crossfade :where(.nav-link, .theme-toggle, .stat-pill, .link-tile, .s
 }
 
 /* ---------------------------------------------------------------------------
-   个人简历详情页 PersonalResumePage
+   主导航下的「整页」子路由：统一顶距与定宽。新增类似反馈/履历的全页请在根 article 上添加
+   stack-subpage（720）或 stack-subpage--wide（880），不要只写 surface-card。
    -------------------------------------------------------------------------- */
-.resume-page {
-  width: min(880px, 100%);
-  margin: clamp(1.5rem, 4vw, 2.75rem) auto 0;
-}
-
-.feedback-page {
+.stack-subpage {
   width: min(720px, 100%);
   margin: clamp(1.5rem, 4vw, 2.75rem) auto 0;
+  box-sizing: border-box;
 }
 
+.stack-subpage--wide {
+  width: min(880px, 100%);
+  margin: clamp(1.5rem, 4vw, 2.75rem) auto 0;
+  box-sizing: border-box;
+}
+
+/* ---------------------------------------------------------------------------
+   个人简历详情页 PersonalResumePage
+   -------------------------------------------------------------------------- */
 .resume-page__hero {
   margin-bottom: clamp(1.25rem, 3vw, 2rem);
 }

@@ -140,8 +140,8 @@
           </p>
         </transition>
 
-        <button class="btn btn-primary login-submit" type="submit">
-          <span>登录</span>
+        <button class="btn btn-primary login-submit" type="submit" :disabled="submitting">
+          <span>{{ submitting ? '验证中…' : '登录' }}</span>
           <svg class="login-submit__chev" width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
             <path d="M5 12h12M13 6l6 6-6 6" stroke="currentColor" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round" />
           </svg>
@@ -158,15 +158,16 @@
 
 <script setup lang="ts">
 import { nextTick, ref } from 'vue'
-import { validateCredentials } from '../composables/useBlogAuth'
+import { loginMemberRemote, type MemberId } from '../composables/useBlogAuth'
 
 const emit = defineEmits<{
-  success: [role: 'member' | 'guest']
+  success: [role: 'member' | 'guest', memberId?: MemberId, displayName?: string]
 }>()
 
 const username = ref('')
 const password = ref('')
 const errorTip = ref('')
+const submitting = ref(false)
 const showPassword = ref(false)
 const passwordInputRef = ref<HTMLInputElement | null>(null)
 
@@ -176,14 +177,20 @@ function clearPassword(): void {
   void nextTick(() => passwordInputRef.value?.focus())
 }
 
-function submit(): void {
+async function submit(): Promise<void> {
   errorTip.value = ''
-  if (!validateCredentials(username.value, password.value)) {
-    errorTip.value = '账号或密码不正确'
-    password.value = ''
-    return
+  submitting.value = true
+  try {
+    const r = await loginMemberRemote(username.value, password.value)
+    if (!r.ok) {
+      errorTip.value = r.error
+      password.value = ''
+      return
+    }
+    emit('success', 'member', r.memberId, r.displayName)
+  } finally {
+    submitting.value = false
   }
-  emit('success', 'member')
 }
 
 function enterAsGuest(): void {

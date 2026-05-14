@@ -2,7 +2,7 @@
   个人简历详情页 —— 数据来自 src/data/resume.ts（由简历 PDF 整理）。
 -->
 <template>
-  <article class="resume-page surface-card surface-card--block" aria-labelledby="resume-title">
+  <article class="resume-page stack-subpage--wide surface-card surface-card--block" aria-labelledby="resume-title">
     <header class="resume-page__hero">
       <a class="resume-page__back text-link-soft meta-quiet" href="#" @click.prevent="$emit('back')">
         ← 返回首页
