@@ -35,6 +35,8 @@
   --radius-lg: 18px;
   --radius-xl: 22px;
   --container-max: min(1340px, calc(100% - clamp(28px, 5vw, 56px)));
+  /** 悬浮顶栏与下方主内容（Tab / 文库）之间的统一间距 —— 新增 Tab 无需单独调 margin */
+  --shell-header-content-gap: clamp(14px, 2.75vw, 26px);
   --space-section: clamp(2.75rem, 5vw, 4rem);
   --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
   --ease-soft: cubic-bezier(0.4, 0, 0.2, 1);
@@ -219,10 +221,25 @@ h3 {
   width: var(--container-max);
   margin: 0 auto;
   padding: clamp(28px, 4vw, 48px) 0 clamp(56px, 8vw, 96px);
+  display: flex;
+  flex-direction: column;
+  gap: var(--shell-header-content-gap);
+}
+
+.main-flow {
+  min-width: 0;
 }
 
 .main-flow > * + * {
   margin-top: var(--space-section);
+}
+
+/**
+ * Tab 页根节点（置于 main-flow 内）：顶栏间距已由 .site-shell gap 承担，
+ * 此处只做横向收敛与安全区占位，避免再各自写 margin-top。
+ */
+.tab-page {
+  min-width: 0;
 }
 
 .surface-card {
@@ -665,7 +682,6 @@ a.btn:not(:hover) {
   grid-template-columns: minmax(0, 1fr) minmax(260px, min(34vw, 380px));
   gap: clamp(22px, 3.2vw, 36px);
   align-items: stretch;
-  padding-top: clamp(1.75rem, 3vw, 2.75rem);
 }
 
 .hero-section__content {
@@ -1461,13 +1477,13 @@ html.theme-crossfade :where(.nav-link, .theme-toggle, .stat-pill, .link-tile, .s
    -------------------------------------------------------------------------- */
 .stack-subpage {
   width: min(720px, 100%);
-  margin: clamp(1.5rem, 4vw, 2.75rem) auto 0;
+  margin: 0 auto;
   box-sizing: border-box;
 }
 
 .stack-subpage--wide {
   width: min(880px, 100%);
-  margin: clamp(1.5rem, 4vw, 2.75rem) auto 0;
+  margin:  0 auto;
   box-sizing: border-box;
 }
 
@@ -1667,5 +1683,69 @@ html.theme-crossfade :where(.nav-link, .theme-toggle, .stat-pill, .link-tile, .s
 
   .nav-bar--floating {
     border-radius: 22px;
+  }
+}
+
+/* ---------------------------------------------------------------------------
+   文库全屏视图：铺满视口，仅左/中/右栏内部滚动（与 App.vue 类名配合）
+   -------------------------------------------------------------------------- */
+
+.app-shell.app-shell--library {
+  min-height: 100dvh;
+  height: 100dvh;
+  max-height: 100dvh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.app-shell.app-shell--library .site-root.site-root--library.site-stack {
+  flex: 1;
+  min-height: 0;
+  width: 100%;
+  max-height: 100%;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.app-shell.app-shell--library .site-shell.site-shell--library {
+  flex: 1;
+  min-height: 0;
+  width: 100%;
+  max-width: none;
+  margin: 0 auto;
+  padding: clamp(6px, 0.85vw, 10px) clamp(10px, 1.5vw, 18px);
+  display: flex;
+  flex-direction: column;
+  gap: var(--shell-header-content-gap);
+}
+
+.app-shell.app-shell--library .main-flow.main-flow--library {
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.site-root--library .nav-bar--floating {
+  flex-shrink: 0;
+}
+
+@media (max-width: 960px) {
+  .app-shell.app-shell--library {
+    height: auto;
+    max-height: none;
+    min-height: 100dvh;
+    overflow: visible;
+  }
+
+  .app-shell.app-shell--library .site-root.site-root--library.site-stack {
+    max-height: none;
+    overflow: visible;
+  }
+
+  .app-shell.app-shell--library .main-flow.main-flow--library {
+    overflow: visible;
+    min-height: auto;
   }
 }

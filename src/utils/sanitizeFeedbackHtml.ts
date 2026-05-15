@@ -26,7 +26,7 @@ export function sanitizeFeedbackHtml(html: string): string {
       'pre',
       'span',
     ],
-    ALLOWED_ATTR: ['href', 'src', 'alt', 'title', 'class'],
+    ALLOWED_ATTR: ['href', 'src', 'alt', 'title', 'class', 'id'],
     ALLOW_DATA_ATTR: false,
     ADD_ATTR: ['target', 'rel'],
     FORBID_TAGS: ['style', 'iframe', 'object', 'embed', 'script'],

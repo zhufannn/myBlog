@@ -231,7 +231,7 @@ function bindWaifuTools($root, basePath) {
 
   $root.find('[data-act="close"]').on('click', function () {
     sessionStorage.setItem('waifu-display', 'none')
-    showMessage('那我先躲起来啦，点右下角「看板娘」可以叫我回来~', 2800, true)
+    showMessage('那我先躲起来啦，点侧边小图标可以叫我回来喔~', 2800, true)
     window.setTimeout(function () {
       $root.hide()
       mountRestoreFab(basePath)
@@ -293,49 +293,313 @@ function setupIdleHitokoto() {
   })
 }
 
+/** —— 唤起按钮：可拖拽、左右贴边吸附；贴边时悬浮探出，离开后收回；离边则保持自由位置 —— */
+var WAIFU_RESTORE_FAB_STORAGE_KEY = 'waifu-restore-fab-v1'
+/** 距左/右边缘小于此值视为贴边吸附（px） */
+var WAIFU_RESTORE_SNAP_PX = 76
+/** 与 CSS 中按钮尺寸保持一致 */
+var WAIFU_RESTORE_BTN = 56
+var WAIFU_RESTORE_DRAG_THRESH = 8
+var WAIFU_RESTORE_ICON_SRC = '/kabi.svg'
+
+function clampNum(n, lo, hi) {
+  return Math.max(lo, Math.min(hi, n))
+}
+
+function getDefaultWaifuRestoreFabState() {
+  return {
+    type: 'snap',
+    edge: 'left',
+    top: window.innerHeight - WAIFU_RESTORE_BTN - 18,
+  }
+}
+
+function normalizeWaifuRestoreFabState(raw) {
+  if (!raw || typeof raw !== 'object') return getDefaultWaifuRestoreFabState()
+  if (raw.type === 'free' && typeof raw.left === 'number' && typeof raw.top === 'number') {
+    return { type: 'free', left: raw.left, top: raw.top }
+  }
+  if (raw.type === 'snap' && (raw.edge === 'left' || raw.edge === 'right') && typeof raw.top === 'number') {
+    return { type: 'snap', edge: raw.edge, top: raw.top }
+  }
+  return getDefaultWaifuRestoreFabState()
+}
+
+function clampTopForRestoreFab(top) {
+  var vh = window.innerHeight
+  var m = 10
+  return clampNum(top, m, vh - WAIFU_RESTORE_BTN - m)
+}
+
+function clampFreeRestoreFabPos(left, top) {
+  var vw = window.innerWidth
+  var vh = window.innerHeight
+  var s = WAIFU_RESTORE_BTN
+  return {
+    left: clampNum(left, 8, vw - s - 8),
+    top: clampNum(top, 8, vh - s - 8),
+  }
+}
+
+/** 从 localStorage 读出并规范化 */
+function loadWaifuRestoreFabState() {
+  try {
+    var j = localStorage.getItem(WAIFU_RESTORE_FAB_STORAGE_KEY)
+    return normalizeWaifuRestoreFabState(j ? JSON.parse(j) : null)
+  } catch (_e) {
+    return getDefaultWaifuRestoreFabState()
+  }
+}
+
+function persistWaifuRestoreFabState(state) {
+  try {
+    localStorage.setItem(WAIFU_RESTORE_FAB_STORAGE_KEY, JSON.stringify(normalizeWaifuRestoreFabState(state)))
+  } catch (_e) {
+    /* ignore */
+  }
+}
+
+function applyWaifuRestoreFabState(btnEl, state) {
+  var $b = $(btnEl)
+  state = normalizeWaifuRestoreFabState(state)
+  btnEl.classList.remove(
+    'live2d-waifu-restore--snap-left',
+    'live2d-waifu-restore--snap-right',
+    'live2d-waifu-restore--free',
+  )
+
+  if (state.type === 'snap') {
+    var t = clampTopForRestoreFab(state.top)
+    if (state.edge === 'left') {
+      btnEl.classList.add('live2d-waifu-restore--snap-left')
+      $b.css({ left: 0, top: t, right: 'auto', bottom: 'auto', transform: '' })
+    } else {
+      btnEl.classList.add('live2d-waifu-restore--snap-right')
+      $b.css({ left: 'auto', right: 0, top: t, bottom: 'auto', transform: '' })
+    }
+    return
+  }
+  var pos = clampFreeRestoreFabPos(state.left, state.top)
+  btnEl.classList.add('live2d-waifu-restore--free')
+  $b.css({
+    left: pos.left,
+    top: pos.top,
+    right: 'auto',
+    bottom: 'auto',
+    transform: 'none',
+  })
+}
+
+function performWaifuRestoreFromFab(basePath) {
+  sessionStorage.removeItem('waifu-display')
+  removeRestoreFab()
+  /** 召回前若已初始化过，只需 resize+重载；否则让 ensureWaifuBindings 里的 initModel 单独加载，避免双加载闪屏 */
+  var alreadyActivated = waifuBindingsDone
+  $('.live2d-waifu-root').show()
+  ensureWaifuBindings(basePath)
+
+  var refresh = window.__waifuRefreshDisplay
+  function doRefresh() {
+    if (typeof refresh === 'function') refresh()
+  }
+
+  window.requestAnimationFrame(function () {
+    window.requestAnimationFrame(function () {
+      doRefresh()
+    })
+  })
+
+  window.setTimeout(function () {
+    if (alreadyActivated) {
+      reloadStoredWaifuModel()
+    } else {
+      doRefresh()
+    }
+  }, 120)
+
+  window.setTimeout(function () {
+    showMessage('又见面啦~', 3200, true)
+  }, 400)
+}
+
+function bindWaifuRestoreFabInteractions($btn, basePath) {
+  var el = $btn[0]
+  var dragging = false
+  var moved = false
+  var ignoreNextClick = false
+  var ptrId = null
+  var ox = 0
+  var oy = 0
+  var startCX = 0
+  var startCY = 0
+
+  function finalizeDragOrSnap() {
+    var rect = el.getBoundingClientRect()
+    var cw = window.innerWidth
+    var dL = rect.left
+    var dR = cw - rect.right
+
+    var snapL = dL <= WAIFU_RESTORE_SNAP_PX
+    var snapR = dR <= WAIFU_RESTORE_SNAP_PX
+
+    if (snapL && (!snapR || dL < dR)) {
+      var stL = { type: 'snap', edge: 'left', top: rect.top }
+      persistWaifuRestoreFabState(stL)
+      applyWaifuRestoreFabState(el, stL)
+      return
+    }
+    if (snapR) {
+      var stR = { type: 'snap', edge: 'right', top: rect.top }
+      persistWaifuRestoreFabState(stR)
+      applyWaifuRestoreFabState(el, stR)
+      return
+    }
+    var stF = { type: 'free', left: rect.left, top: rect.top }
+    persistWaifuRestoreFabState(stF)
+    applyWaifuRestoreFabState(el, stF)
+  }
+
+  el.addEventListener(
+    'pointerdown',
+    function (e) {
+      if (e.button !== 0) return
+      dragging = true
+      moved = false
+      startCX = e.clientX
+      startCY = e.clientY
+      var r = el.getBoundingClientRect()
+      ox = e.clientX - r.left
+      oy = e.clientY - r.top
+      ptrId = e.pointerId
+      el.classList.add('live2d-waifu-restore--dragging')
+      try {
+        el.setPointerCapture(ptrId)
+      } catch (_e) {
+        /* ignore */
+      }
+    },
+    { passive: true },
+  )
+
+  el.addEventListener('pointermove', function (e) {
+    if (!dragging || e.pointerId !== ptrId) return
+    if (
+      Math.abs(e.clientX - startCX) > WAIFU_RESTORE_DRAG_THRESH ||
+      Math.abs(e.clientY - startCY) > WAIFU_RESTORE_DRAG_THRESH
+    ) {
+      if (!moved) {
+        moved = true
+        el.classList.remove('live2d-waifu-restore--snap-left', 'live2d-waifu-restore--snap-right')
+        el.classList.add('live2d-waifu-restore--free')
+      }
+      var nl = e.clientX - ox
+      var nt = e.clientY - oy
+      var pos = clampFreeRestoreFabPos(nl, nt)
+      $btn.css({
+        left: pos.left,
+        top: pos.top,
+        right: 'auto',
+        bottom: 'auto',
+        transform: 'none',
+      })
+    }
+  })
+
+  el.addEventListener('pointerup', function (e) {
+    if (!dragging || e.pointerId !== ptrId) return
+    dragging = false
+    el.classList.remove('live2d-waifu-restore--dragging')
+    try {
+      el.releasePointerCapture(e.pointerId)
+    } catch (_err) {
+      /* ignore */
+    }
+    ptrId = null
+
+    if (moved) {
+      ignoreNextClick = true
+      window.setTimeout(function () {
+        ignoreNextClick = false
+      }, 80)
+      finalizeDragOrSnap()
+      moved = false
+      return
+    }
+    moved = false
+  })
+
+  el.addEventListener('pointercancel', function (e) {
+    if (e.pointerId !== ptrId && ptrId != null) return
+    dragging = false
+    ptrId = null
+    el.classList.remove('live2d-waifu-restore--dragging')
+    moved = false
+  })
+
+  el.addEventListener('click', function (e) {
+    if (ignoreNextClick) {
+      e.preventDefault()
+      e.stopPropagation()
+      return
+    }
+    e.preventDefault()
+    performWaifuRestoreFromFab(basePath)
+  })
+
+  el.addEventListener('keydown', function (e) {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault()
+      performWaifuRestoreFromFab(basePath)
+    }
+  })
+}
+
+function attachWaifuRestoreFabResizeHandler() {
+  var t = 0
+  $(window)
+    .off('resize.waifuRestoreFab')
+    .on('resize.waifuRestoreFab', function () {
+      window.clearTimeout(t)
+      t = window.setTimeout(function () {
+        var btn = document.getElementById(WAIFU_RESTORE_ID)
+        if (!btn) return
+        var state = loadWaifuRestoreFabState()
+        if (state.type === 'snap') {
+          state.top = clampTopForRestoreFab(state.top)
+        } else if (state.type === 'free') {
+          var p = clampFreeRestoreFabPos(state.left, state.top)
+          state.left = p.left
+          state.top = p.top
+        }
+        persistWaifuRestoreFabState(state)
+        applyWaifuRestoreFabState(btn, state)
+      }, 100)
+    })
+}
+
 function removeRestoreFab() {
+  $(window).off('resize.waifuRestoreFab')
   $('#' + WAIFU_RESTORE_ID).remove()
 }
 
 function mountRestoreFab(basePath) {
   if (document.getElementById(WAIFU_RESTORE_ID)) return
+
   var $btn = $(
     '<button type="button" id="' +
       WAIFU_RESTORE_ID +
-      '" class="live2d-waifu-restore" aria-label="显示看板娘">看板娘</button>',
+      '" class="live2d-waifu-restore" aria-label="显示看板娘">' +
+      '<img src="' +
+      WAIFU_RESTORE_ICON_SRC +
+      '" class="live2d-waifu-restore__img" width="44" height="44" draggable="false" alt="" decoding="async" />' +
+      '</button>',
   )
   $('body').append($btn)
-  $btn.on('click', function () {
-    sessionStorage.removeItem('waifu-display')
-    removeRestoreFab()
-    /** 召回前若已初始化过，只需 resize+重载；否则让 ensureWaifuBindings 里的 initModel 单独加载，避免双加载闪屏 */
-    var alreadyActivated = waifuBindingsDone
-    $('.live2d-waifu-root').show()
-    ensureWaifuBindings(basePath)
 
-    var refresh = window.__waifuRefreshDisplay
-    function doRefresh() {
-      if (typeof refresh === 'function') refresh()
-    }
-
-    window.requestAnimationFrame(function () {
-      window.requestAnimationFrame(function () {
-        doRefresh()
-      })
-    })
-
-    window.setTimeout(function () {
-      if (alreadyActivated) {
-        reloadStoredWaifuModel()
-      } else {
-        doRefresh()
-      }
-    }, 120)
-
-    window.setTimeout(function () {
-      showMessage('又见面啦~', 3200, true)
-    }, 400)
-  })
+  var el = $btn[0]
+  applyWaifuRestoreFabState(el, loadWaifuRestoreFabState())
+  bindWaifuRestoreFabInteractions($btn, basePath)
+  attachWaifuRestoreFabResizeHandler()
 }
 
 function ensureWaifuBindings(basePath) {

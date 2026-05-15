@@ -177,41 +177,96 @@ html.theme-dark .live2d-waifu-root .waifu-tool {
   opacity: 0;
 }
 
-/* 隐藏看板娘后：左下角召回（与主挂件同页，无需刷新） */
+/* 隐藏看板娘后：侧边可拖拽唤起（项目内 kabi 图标） */
 .live2d-waifu-restore {
+  --waifu-restore-peek: 16px;
   position: fixed;
-  left: 14px;
-  right: auto;
-  bottom: 14px;
   z-index: 99998;
-  padding: 8px 14px;
+  box-sizing: border-box;
+  width: 56px;
+  height: 56px;
   margin: 0;
-  border-radius: 999px;
-  border: 1px solid rgba(100, 120, 140, 0.28);
-  background: color-mix(in srgb, var(--color-surface-solid, #fff) 92%, transparent);
-  color: var(--color-text-strong, #1f242c);
-  font-family: var(--font-sans, system-ui, sans-serif);
-  font-size: 13px;
-  font-weight: 500;
-  cursor: pointer;
-  box-shadow: 0 4px 18px rgba(20, 24, 32, 0.12);
+  padding: 0;
+  border-radius: 50%;
+  border: 2px solid rgba(100, 120, 140, 0.32);
+  background: color-mix(in srgb, var(--color-surface-solid, #fff) 94%, transparent);
+  cursor: grab;
+  touch-action: none;
+  user-select: none;
+  box-shadow: 0 4px 22px rgba(20, 24, 32, 0.14);
   pointer-events: auto;
-  backdrop-filter: blur(12px);
+  backdrop-filter: blur(10px);
+  transition: transform 0.24s ease, border-color 0.18s ease, box-shadow 0.2s ease;
+  display: grid;
+  place-items: center;
+  overflow: visible;
 }
 
-.live2d-waifu-restore:hover {
-  border-color: color-mix(in srgb, var(--color-accent, #5f6f82) 40%, transparent);
-  background: color-mix(in srgb, var(--color-surface-solid, #fff) 88%, transparent);
+.live2d-waifu-restore:focus-visible {
+  outline: 2px solid color-mix(in srgb, var(--color-accent, #5f6f82) 65%, transparent);
+  outline-offset: 2px;
+}
+
+.live2d-waifu-restore__img {
+  width: 44px;
+  height: 44px;
+  display: block;
+  border-radius: 50%;
+  pointer-events: none;
+  object-fit: cover;
+}
+
+.live2d-waifu-restore--snap-left {
+  left: 0 !important;
+  right: auto !important;
+  bottom: auto !important;
+  transform: translateX(calc(-100% + var(--waifu-restore-peek)));
+}
+
+.live2d-waifu-restore--snap-left:hover {
+  transform: translateX(0);
+}
+
+.live2d-waifu-restore--snap-right {
+  left: auto !important;
+  right: 0 !important;
+  bottom: auto !important;
+  transform: translateX(calc(100% - var(--waifu-restore-peek)));
+}
+
+.live2d-waifu-restore--snap-right:hover {
+  transform: translateX(0);
+}
+
+.live2d-waifu-restore--free {
+  transform: none !important;
+}
+
+.live2d-waifu-restore--dragging,
+.live2d-waifu-restore--dragging:hover {
+  cursor: grabbing !important;
+  transition: none !important;
+  transform: none !important;
+  box-shadow: 0 10px 36px rgba(20, 24, 32, 0.2);
+}
+
+.live2d-waifu-restore:hover:not(.live2d-waifu-restore--dragging) {
+  border-color: color-mix(in srgb, var(--color-accent, #5f6f82) 45%, transparent);
 }
 
 html.theme-dark .live2d-waifu-restore {
-  background: rgba(34, 36, 44, 0.92);
-  color: #e9ebef;
-  border-color: rgba(255, 255, 255, 0.1);
+  background: rgba(34, 36, 44, 0.93);
+  border-color: rgba(255, 255, 255, 0.14);
 }
 
-html.theme-dark .live2d-waifu-restore:hover {
-  border-color: rgba(127, 184, 207, 0.35);
+html.theme-dark .live2d-waifu-restore:hover:not(.live2d-waifu-restore--dragging) {
+  border-color: rgba(127, 184, 207, 0.45);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .live2d-waifu-restore {
+    transition: none;
+  }
 }
 
 @media (max-width: 768px) {

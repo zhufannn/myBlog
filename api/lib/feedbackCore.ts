@@ -100,6 +100,32 @@ async function migrateMessageLengthConstraint(sql: SqlFn): Promise<void> {
   }
 }
 
+async function bootstrapFeedbackSchema(sql: SqlFn): Promise<void> {
+  await ensureSchema(sql)
+  await migrateMessageLengthConstraint(sql)
+}
+
+const feedbackReadyByUrl = new Set<string>()
+const feedbackMigratingByUrl = new Map<string, Promise<void>>()
+
+async function ensureFeedbackSchemaReady(postgresUrl: string, sql: SqlFn): Promise<void> {
+  const key = postgresUrl.trim()
+  if (!key) throw new Error('postgresUrl missing')
+  if (feedbackReadyByUrl.has(key)) return
+  const queued = feedbackMigratingByUrl.get(key)
+  if (queued) return queued
+  const p = (async (): Promise<void> => {
+    await bootstrapFeedbackSchema(sql)
+    feedbackReadyByUrl.add(key)
+  })()
+  feedbackMigratingByUrl.set(key, p)
+  try {
+    await p
+  } finally {
+    feedbackMigratingByUrl.delete(key)
+  }
+}
+
 export async function runFeedbackApi(input: {
   method: string | undefined
   body: unknown
@@ -117,8 +143,7 @@ export async function runFeedbackApi(input: {
   const sql = neon(input.postgresUrl)
 
   try {
-    await ensureSchema(sql)
-    await migrateMessageLengthConstraint(sql)
+    await ensureFeedbackSchemaReady(input.postgresUrl, sql)
   } catch (e) {
     console.error('feedback ensureSchema', e)
     return { status: 500, json: { error: '数据库初始化失败，请检查连接串与网络' } }

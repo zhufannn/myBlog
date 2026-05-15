@@ -7,6 +7,8 @@ CREATE TABLE IF NOT EXISTS blog_users (
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
+ALTER TABLE blog_users ADD COLUMN IF NOT EXISTS is_admin BOOLEAN NOT NULL DEFAULT FALSE;
+
 CREATE INDEX IF NOT EXISTS blog_users_username_lower_idx ON blog_users (lower(username));
 
--- 首次部署可留空表，由接口在首次访问时写入 zhufan / kuangmin 的种子行（bcrypt）。
+-- 首次部署可留空表，由接口在首次访问时写入种子；含管理员 admin（见 authCore SEED_USERS / ensureAdminAccount）。

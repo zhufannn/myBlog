@@ -16,6 +16,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse): 
       body: readJsonBody(req.body),
       postgresUrl: getPostgresUrl(),
     })
+    if (out.setCookieHeader) {
+      res.setHeader('Set-Cookie', out.setCookieHeader)
+    }
     res.status(out.status).json(out.json)
   } catch (e) {
     console.error('[api/auth/login]', e)

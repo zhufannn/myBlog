@@ -161,7 +161,7 @@ import { nextTick, ref } from 'vue'
 import { loginMemberRemote, type MemberId } from '../composables/useBlogAuth'
 
 const emit = defineEmits<{
-  success: [role: 'member' | 'guest', memberId?: MemberId, displayName?: string]
+  success: [role: 'member' | 'guest', memberId?: MemberId, displayName?: string, isAdmin?: boolean, loginUsername?: string]
 }>()
 
 const username = ref('')
@@ -187,7 +187,7 @@ async function submit(): Promise<void> {
       password.value = ''
       return
     }
-    emit('success', 'member', r.memberId, r.displayName)
+    emit('success', 'member', r.memberId, r.displayName, r.isAdmin, username.value.trim())
   } finally {
     submitting.value = false
   }

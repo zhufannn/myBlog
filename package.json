@@ -27,7 +27,8 @@
     "pixi.js": "^6.5.10",
     "undici": "^5.28.5",
     "vue": "^3.4.38",
-    "vue-easy-lightbox": "^1.19.0"
+    "vue-easy-lightbox": "^1.19.0",
+    "yuque-editor-core": "0.0.6"
   },
   "devDependencies": {
     "@types/bcryptjs": "^2.4.6",
